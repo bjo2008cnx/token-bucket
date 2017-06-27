@@ -24,57 +24,53 @@ import java.util.concurrent.TimeUnit;
  * The tokens are refilled in bursts rather than at a fixed rate.  This refill strategy will never allow more than
  * N tokens to be consumed during a window of time T.
  */
-public class FixedIntervalRefillStrategy implements TokenBucketImpl.RefillStrategy
-{
-  private final Ticker ticker;
-  private final long numTokensPerPeriod;
-  private final long periodDurationInNanos;
-  private long lastRefillTime;
-  private long nextRefillTime;
+public class FixedIntervalRefillStrategy implements TokenBucketImpl.RefillStrategy {
+    private final Ticker ticker;
+    private final long numTokensPerPeriod;
+    private final long periodDurationInNanos;
+    private long lastRefillTime;
+    private long nextRefillTime;
 
-  /**
-   * Create a FixedIntervalRefillStrategy.
-   *
-   * @param ticker             A ticker to use to measure time.
-   * @param numTokensPerPeriod The number of tokens to add to the bucket every period.
-   * @param period             How often to refill the bucket.
-   * @param unit               Unit for period.
-   */
-  public FixedIntervalRefillStrategy(Ticker ticker, long numTokensPerPeriod, long period, TimeUnit unit)
-  {
-    this.ticker = ticker;
-    this.numTokensPerPeriod = numTokensPerPeriod;
-    this.periodDurationInNanos = unit.toNanos(period);
-    this.lastRefillTime = -periodDurationInNanos;
-    this.nextRefillTime = -periodDurationInNanos;
-  }
-
-  @Override
-  public synchronized long refill()
-  {
-    long now = ticker.read();
-    if (now < nextRefillTime) {
-      return 0;
+    /**
+     * Create a FixedIntervalRefillStrategy.
+     *
+     * @param ticker             A ticker to use to measure time.
+     * @param numTokensPerPeriod The number of tokens to add to the bucket every period.
+     * @param period             How often to refill the bucket.
+     * @param unit               Unit for period.
+     */
+    public FixedIntervalRefillStrategy(Ticker ticker, long numTokensPerPeriod, long period, TimeUnit unit) {
+        this.ticker = ticker;
+        this.numTokensPerPeriod = numTokensPerPeriod;
+        this.periodDurationInNanos = unit.toNanos(period);
+        this.lastRefillTime = -periodDurationInNanos;
+        this.nextRefillTime = -periodDurationInNanos;
     }
 
-    // We now know that we need to refill the bucket with some tokens, the question is how many.  We need to count how
-    // many periods worth of tokens we've missed.
-    long numPeriods = Math.max(0, (now - lastRefillTime) / periodDurationInNanos);
+    @Override
+    public synchronized long refill() {
+        long now = ticker.read();
+        if (now < nextRefillTime) {
+            return 0;
+        }
 
-    // Move the last refill time forward by this many periods.
-    lastRefillTime += numPeriods * periodDurationInNanos;
+        // We now know that we need to refill the bucket with some tokens, the question is how many.  We need to count how
+        // many periods worth of tokens we've missed.
+        long numPeriods = Math.max(0, (now - lastRefillTime) / periodDurationInNanos);
 
-    // ...and we'll refill again one period after the last time we refilled.
-    nextRefillTime = lastRefillTime + periodDurationInNanos;
+        // Move the last refill time forward by this many periods.
+        lastRefillTime += numPeriods * periodDurationInNanos;
 
-    return numPeriods * numTokensPerPeriod;
-  }
+        // ...and we'll refill again one period after the last time we refilled.
+        nextRefillTime = lastRefillTime + periodDurationInNanos;
 
-  @Override
-  public long getDurationUntilNextRefill(TimeUnit unit)
-  {
-    long now = ticker.read();
-    return unit.convert(Math.max(0, nextRefillTime - now), TimeUnit.NANOSECONDS);
-  }
+        return numPeriods * numTokensPerPeriod;
+    }
+
+    @Override
+    public long getDurationUntilNextRefill(TimeUnit unit) {
+        long now = ticker.read();
+        return unit.convert(Math.max(0, nextRefillTime - now), TimeUnit.NANOSECONDS);
+    }
 }
 
