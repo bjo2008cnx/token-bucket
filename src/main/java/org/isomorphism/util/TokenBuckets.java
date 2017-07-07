@@ -24,14 +24,14 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Static utility methods pertaining to creating {@link TokenBucketImpl} instances.
+ * 创建{@link TokenBucket}实例的静态构造器。
  */
 public final class TokenBuckets {
     private TokenBuckets() {
     }
 
     /**
-     * Create a new builder for token buckets.
+     * 为令牌桶创建一个新的构建器。
      */
     public static Builder builder() {
         return new Builder();
@@ -45,7 +45,7 @@ public final class TokenBuckets {
         private final Ticker ticker = Ticker.systemTicker();
 
         /**
-         * Specify the overall capacity of the token bucket.
+         * 指定令牌桶的总容量。
          */
         public Builder withCapacity(long numTokens) {
             checkArgument(numTokens > 0, "Must specify a positive number of tokens");
@@ -54,7 +54,7 @@ public final class TokenBuckets {
         }
 
         /**
-         * Initialize the token bucket with a specific number of tokens.
+         * 用特定数量的令牌初始化令牌桶。
          */
         public Builder withInitialTokens(long numTokens) {
             checkArgument(numTokens > 0, "Must specify a positive number of tokens");
@@ -63,14 +63,14 @@ public final class TokenBuckets {
         }
 
         /**
-         * Refill tokens at a fixed interval.
+         * 以固定间隔补充令牌。
          */
         public Builder withFixedIntervalRefillStrategy(long refillTokens, long period, TimeUnit unit) {
             return withRefillStrategy(new FixedIntervalRefillStrategy(ticker, refillTokens, period, unit));
         }
 
         /**
-         * Use a user defined refill strategy.
+         * 使用用户定义的充值策略。
          */
         public Builder withRefillStrategy(TokenBucket.RefillStrategy refillStrategy) {
             this.refillStrategy = checkNotNull(refillStrategy);
@@ -78,22 +78,21 @@ public final class TokenBuckets {
         }
 
         /**
-         * Use a sleep strategy that will always attempt to yield the CPU to other processes.
+         * 使用一种让出CPU的策略
          */
         public Builder withYieldingSleepStrategy() {
             return withSleepStrategy(YIELDING_SLEEP_STRATEGY);
         }
 
         /**
-         * Use a sleep strategy that will not yield the CPU to other processes.  It will busy wait until more tokens become
-         * available.
+         * 使用不会将CPU谦让(yield)给其他进程的睡眠策略。 它将忙碌等到更多的令牌可用。
          */
         public Builder withBusyWaitSleepStrategy() {
             return withSleepStrategy(BUSY_WAIT_SLEEP_STRATEGY);
         }
 
         /**
-         * Use a user defined sleep strategy.
+         * 使用用户定义的睡眠策略。
          */
         public Builder withSleepStrategy(TokenBucket.SleepStrategy sleepStrategy) {
             this.sleepStrategy = checkNotNull(sleepStrategy);
@@ -101,7 +100,7 @@ public final class TokenBuckets {
         }
 
         /**
-         * Build the token bucket.
+         * 构建令牌桶。
          */
         public TokenBucket build() {
             checkNotNull(capacity, "Must specify a capacity");
@@ -114,8 +113,7 @@ public final class TokenBuckets {
     private static final TokenBucketImpl.SleepStrategy YIELDING_SLEEP_STRATEGY = new TokenBucketImpl.SleepStrategy() {
         @Override
         public void sleep() {
-            // Sleep for the smallest unit of time possible just to relinquish control
-            // and to allow other threads to run.
+            // 睡眠1个ns的时间，放弃控制，允许其他线程运行。
             Uninterruptibles.sleepUninterruptibly(1, TimeUnit.NANOSECONDS);
         }
     };

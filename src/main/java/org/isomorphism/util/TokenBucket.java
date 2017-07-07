@@ -18,108 +18,98 @@ package org.isomorphism.util;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A token bucket is used for rate limiting access to a portion of code.
+ * 令牌桶用于限制某个时间窗口的访问次数。
  *
  * @see <a href="http://en.wikipedia.org/wiki/Token_bucket">Token Bucket on Wikipedia</a>
  * @see <a href="http://en.wikipedia.org/wiki/Leaky_bucket">Leaky Bucket on Wikipedia</a>
  */
 public interface TokenBucket {
     /**
-     * Returns the capacity of this token bucket.  This is the maximum number of tokens that the bucket can hold at
-     * any one time.
+     * 返回此令牌桶的容量。 这是桶可以在任何一个时间点保存的令牌的最大数量。
      *
-     * @return The capacity of the bucket.
+     * @return 令牌桶的容量
      */
     long getCapacity();
 
     /**
-     * Returns the current number of tokens in the bucket.  If the bucket is empty then this method will return 0.
+     * 返回桶中当前的令牌数。 如果bucket为空，那么这个方法将返回0。
      *
-     * @return The current number of tokens in the bucket.
+     * @return 桶中当前的令牌数
      */
     long getNumTokens();
 
     /**
-     * Returns the amount of time in the specified time unit until the next group of tokens can be added to the token
-     * bucket.
+     * 返回直到下一组令牌可以添加到令牌桶的时间。
      *
-     * @param unit The time unit to express the return value in.
-     * @return The amount of time until the next group of tokens can be added to the token bucket.
+     * @param unit 表示返回值的时间单位.
+     * @return 下一组令牌可以添加到令牌桶中的时间。
      * @see org.isomorphism.util.TokenBucket.RefillStrategy#getDurationUntilNextRefill(java.util.concurrent.TimeUnit)
      */
     long getDurationUntilNextRefill(TimeUnit unit) throws UnsupportedOperationException;
 
     /**
-     * Attempt to consume a single token from the bucket.  If it was consumed then {@code true} is returned, otherwise
-     * {@code false} is returned.
+     * 尝试从桶中消耗单个令牌。 如果它被消耗，则返回{@code true}，否则返回{@code false}。
      *
-     * @return {@code true} if a token was consumed, {@code false} otherwise.
+     * @return 如果它被消耗，则返回{@code true}，否则返回{@code false}。
      */
     boolean tryConsume();
 
     /**
-     * Attempt to consume a specified number of tokens from the bucket.  If the tokens were consumed then {@code true}
-     * is returned, otherwise {@code false} is returned.
+     * 尝试从桶中消耗指定数量的令牌。 如果令牌被消耗，则返回{@code true}，否则返回{@code false}。
      *
-     * @param numTokens The number of tokens to consume from the bucket, must be a positive number.
-     * @return {@code true} if the tokens were consumed, {@code false} otherwise.
+     * @param numTokens 从桶中消耗的令牌数,必须是正数。
+     * @return {@code true} 如果令牌被消费，否则{@code false}
      */
     boolean tryConsume(long numTokens);
 
     /**
-     * Consume a single token from the bucket.  If no token is currently available then this method will block until a
-     * token becomes available.
+     * 从桶中消耗单个令牌。 如果当前没有令牌可用，则该方法将阻塞，直到令牌变得可用。
      */
     void consume();
 
     /**
-     * Consumes multiple tokens from the bucket.  If enough tokens are not currently available then this method will block
-     * until
+     * 从桶中消耗多个令牌。 如果足够的令牌当前不可用，那么这种方法将被阻塞
      *
-     * @param numTokens The number of tokens to consume from teh bucket, must be a positive number.
+     * @param numTokens 从桶中消耗的令牌数,必须是正数。
      */
     void consume(long numTokens);
 
     /**
-     * Refills the bucket with the specified number of tokens.  If the bucket is currently full or near capacity then
-     * fewer than {@code numTokens} may be added.
+     * 用指定数量的令牌重新填充桶。 如果桶当前已满或接近容量，则可能会添加少于{@code numTokens}。
      *
-     * @param numTokens The number of tokens to add to the bucket.
+     * @param numTokens 要添加到桶中的令牌数。
      */
     void refill(long numTokens);
 
     /**
-     * Encapsulation of a refilling strategy for a token bucket.
+     * 封装令牌桶的重新填充策略。
      */
     static interface RefillStrategy {
         /**
-         * Returns the number of tokens to add to the token bucket.
+         * 返回要添加到令牌桶的令牌数。
          *
-         * @return The number of tokens to add to the token bucket.
+         * @return 要添加到令牌桶的令牌数。
          */
         long refill();
 
         /**
-         * Returns the amount of time in the specified time unit until the next group of tokens can be added to the token
-         * bucket.  Please note, depending on the {@code SleepStrategy} used by the token bucket, tokens may not actually
-         * be added until much after the returned duration.  If for some reason the implementation of
-         * {@code RefillStrategy} doesn't support knowing when the next batch of tokens will be added, then an
-         * {@code UnsupportedOperationException} may be thrown.  Lastly, if the duration until the next time tokens will
-         * be added to the token bucket is less than a single unit of the passed in time unit then this method will
-         * return 0.
+         * 返回直到下一组令牌可以添加到令牌桶的时间。
+         * 请注意，根据令牌桶使用的{@code SleepStrategy}，令牌可能不会在返回的持续时间之后实际添加。
+         * 如果由于某些原因，{@code RefillStrategy}的实例不支持“知道何时将添加下一批令牌”，则可能会抛出{@code UnsupportedOperationException}。
+         * 如果下一次令牌添加到令牌桶中的时间小于个时间单位，则该方法将返回0。
          *
-         * @param unit The time unit to express the return value in.
-         * @return The amount of time until the next group of tokens can be added to the token bucket.
+         * @param unit 表示返回值的时间单位。
+         * @return 下一组令牌可以添加到令牌桶中的时间量。
          */
         long getDurationUntilNextRefill(TimeUnit unit) throws UnsupportedOperationException;
     }
 
     /**
-     * Encapsulation of a strategy for relinquishing control of the CPU.
+     * 封装放弃CPU控制策略。
      */
     static interface SleepStrategy {
         /**
-         * Sleep for a short period of time to allow other threads and system processes to execute.
+         * 休息一段时间以允许其他线程和系统进程执行。
          */
         void sleep();
     }

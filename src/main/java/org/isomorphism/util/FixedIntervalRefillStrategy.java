@@ -20,9 +20,8 @@ import com.google.common.base.Ticker;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A token bucket refill strategy that will provide N tokens for a token bucket to consume every T units of time.
- * The tokens are refilled in bursts rather than at a fixed rate.  This refill strategy will never allow more than
- * N tokens to be consumed during a window of time T.
+ * 令牌桶补充策略，每T个时间单位将为令牌桶提供N个令牌。
+ * 令牌以突发而不是固定速率重新填充。这种补充策略将永远不会允许在时间T的窗口内消耗多于N个令牌。
  */
 public class FixedIntervalRefillStrategy implements TokenBucketImpl.RefillStrategy {
     private final Ticker ticker;
@@ -32,12 +31,12 @@ public class FixedIntervalRefillStrategy implements TokenBucketImpl.RefillStrate
     private long nextRefillTime;
 
     /**
-     * Create a FixedIntervalRefillStrategy.
+     * 创建fixedIntervalRefillStrategy.
      *
-     * @param ticker             A ticker to use to measure time.
-     * @param numTokensPerPeriod The number of tokens to add to the bucket every period.
-     * @param period             How often to refill the bucket.
-     * @param unit               Unit for period.
+     * @param ticker             用于衡量时间的ticker
+     * @param numTokensPerPeriod 每个时期添加到桶中的令牌数。
+     * @param period             重新填充桶的频率
+     * @param unit               时间单位
      */
     public FixedIntervalRefillStrategy(Ticker ticker, long numTokensPerPeriod, long period, TimeUnit unit) {
         this.ticker = ticker;
