@@ -21,18 +21,12 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * A token bucket implementation that is of a leaky bucket in the sense that it has a finite capacity and any added
- * tokens that would exceed this capacity will "overflow" out of the bucket and are lost forever.
+ * 令牌桶实现是一个漏斗桶，因为它具有有限的容量，任何增加的令牌将超出这个容量将“溢出”出来，并永远丢失。
  * <p/>
- * In this implementation the rules for refilling the bucket are encapsulated in a provided {@code RefillStrategy}
- * instance.  Prior to attempting to consume any tokens the refill strategy will be consulted to see how many tokens
- * should be added to the bucket.
+ * 在这个实现中，重新填充桶的规则被封装在提供的{@code RefillStrategy}实例中。 在尝试使用任何令牌之前，将咨询补充策略，以了解应该将多少个令牌添加到存储桶中。
  * <p/>
- * In addition in this implementation the method of yielding CPU control is encapsulated in the provided
- * {@code SleepStrategy} instance.  For high performance applications where tokens are being refilled incredibly quickly
- * and an accurate bucket implementation is required, it may be useful to never yield control of the CPU and to instead
- * busy wait.  This strategy allows the caller to make this decision for themselves instead of the library forcing a
- * decision.
+ * 另外在这个实现中，退让CPU控制(yield cpu control)的方法封装在提供的{@code SleepStrategy}实例中。
+ * 对于高性能应用程序，其中令牌快速重新填充，需要不让出CPU， 这个策略允许调用者为自己做出这个决定。
  */
 class TokenBucketImpl implements TokenBucket {
     private final long capacity;
@@ -51,10 +45,9 @@ class TokenBucketImpl implements TokenBucket {
     }
 
     /**
-     * Returns the capacity of this token bucket.  This is the maximum number of tokens that the bucket can hold at
-     * any one time.
+     * 返回此令牌桶的容量。 这是桶可以在任何一个时间点保存的令牌的最大数量。
      *
-     * @return The capacity of the bucket.
+     * @return 令牌桶的容量
      */
     @Override
     public long getCapacity() {
@@ -62,25 +55,22 @@ class TokenBucketImpl implements TokenBucket {
     }
 
     /**
-     * Returns the current number of tokens in the bucket.  If the bucket is empty then this method will return 0.
+     * 返回桶中当前的令牌数。 如果bucket为空，那么这个方法将返回0。
      *
-     * @return The current number of tokens in the bucket.
+     * @return 桶中当前的令牌数
      */
     @Override
     public synchronized long getNumTokens() {
-        // Give the refill strategy a chance to add tokens if it needs to so that we have an accurate
-        // count.
+        // 给予补充策略一个机会添加标记，使我们有一个准确的计数。
         refill(refillStrategy.refill());
-
         return size;
     }
 
     /**
-     * Returns the amount of time in the specified time unit until the next group of tokens can be added to the token
-     * bucket.
+     * 返回直到下一组令牌可以添加到令牌桶的时间
      *
-     * @param unit The time unit to express the return value in.
-     * @return The amount of time until the next group of tokens can be added to the token bucket.
+     * @param unit 时间单位
+     * @return 直到下一组令牌可以添加到令牌桶的时间
      * @see org.isomorphism.util.TokenBucket.RefillStrategy#getDurationUntilNextRefill(java.util.concurrent.TimeUnit)
      */
     @Override
@@ -89,21 +79,19 @@ class TokenBucketImpl implements TokenBucket {
     }
 
     /**
-     * Attempt to consume a single token from the bucket.  If it was consumed then {@code true} is returned, otherwise
-     * {@code false} is returned.
+     * 尝试从桶中消耗单个令牌。 如果它被消耗，则返回{@code true}，否则返回{@code false}。
      *
-     * @return {@code true} if a token was consumed, {@code false} otherwise.
+     * @return  如果它被消耗，则返回{@code true}，否则返回{@code false}。
      */
     public boolean tryConsume() {
         return tryConsume(1);
     }
 
     /**
-     * Attempt to consume a specified number of tokens from the bucket.  If the tokens were consumed then {@code true}
-     * is returned, otherwise {@code false} is returned.
+     * 尝试从桶中消耗指定数量的令牌。 如果令牌被消耗，则返回{@code true}，否则返回{@code false}。
      *
-     * @param numTokens The number of tokens to consume from the bucket, must be a positive number.
-     * @return {@code true} if the tokens were consumed, {@code false} otherwise.
+     * @param numTokens 从桶中消耗的令牌数,必须是正数。
+     * @return {@code true} 如果令牌被消费，否则{@code false}
      */
     public synchronized boolean tryConsume(long numTokens) {
         checkArgument(numTokens > 0, "Number of tokens to consume must be positive");
@@ -121,18 +109,16 @@ class TokenBucketImpl implements TokenBucket {
     }
 
     /**
-     * Consume a single token from the bucket.  If no token is currently available then this method will block until a
-     * token becomes available.
+     * 从桶中消耗单个令牌。 如果当前没有令牌可用，则该方法将阻塞，直到令牌变得可用。
      */
     public void consume() {
         consume(1);
     }
 
     /**
-     * Consumes multiple tokens from the bucket.  If enough tokens are not currently available then this method will block
-     * until
+     * 从桶中消耗多个令牌。 如果足够的令牌当前不可用，那么这种方法将被阻塞
      *
-     * @param numTokens The number of tokens to consume from teh bucket, must be a positive number.
+     * @param numTokens 从桶中消耗的令牌数,必须是正数。
      */
     public void consume(long numTokens) {
         while (true) {
@@ -145,10 +131,9 @@ class TokenBucketImpl implements TokenBucket {
     }
 
     /**
-     * Refills the bucket with the specified number of tokens.  If the bucket is currently full or near capacity then
-     * fewer than {@code numTokens} may be added.
+     * 用指定数量的令牌重新填充桶。 如果桶当前已满或接近容量，则可能会添加少于{@code numTokens}。
      *
-     * @param numTokens The number of tokens to add to the bucket.
+     * @param numTokens 要添加到桶中的令牌数。
      */
     public synchronized void refill(long numTokens) {
         long newTokens = Math.min(capacity, Math.max(0, numTokens));
