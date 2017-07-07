@@ -11,11 +11,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class TokenBucketBuilder {
     private Long capacity = null;
     private long initialTokens = 0;
-    private TokenBucketImpl.RefillStrategy refillStrategy = null;
-    private TokenBucketImpl.SleepStrategy sleepStrategy = YIELDING_SLEEP_STRATEGY;
+    private LeakyTokenBucket.RefillStrategy refillStrategy = null;
+    private LeakyTokenBucket.SleepStrategy sleepStrategy = YIELDING_SLEEP_STRATEGY;
     private final Ticker ticker = Ticker.systemTicker();
 
-    static final TokenBucketImpl.SleepStrategy YIELDING_SLEEP_STRATEGY = new TokenBucketImpl.SleepStrategy() {
+    static final LeakyTokenBucket.SleepStrategy YIELDING_SLEEP_STRATEGY = new LeakyTokenBucket.SleepStrategy() {
         @Override
         public void sleep() {
             // 睡眠1个ns的时间，放弃控制，允许其他线程运行。
@@ -23,7 +23,7 @@ public class TokenBucketBuilder {
         }
     };
 
-    static final TokenBucketImpl.SleepStrategy BUSY_WAIT_SLEEP_STRATEGY = new TokenBucketImpl.SleepStrategy() {
+    static final LeakyTokenBucket.SleepStrategy BUSY_WAIT_SLEEP_STRATEGY = new LeakyTokenBucket.SleepStrategy() {
         @Override
         public void sleep() {
             // Do nothing, don't sleep.
@@ -96,7 +96,7 @@ public class TokenBucketBuilder {
         checkNotNull(capacity, "Must specify a capacity");
         checkNotNull(refillStrategy, "Must specify a refill strategy");
 
-        return new TokenBucketImpl(capacity, initialTokens, refillStrategy, sleepStrategy);
+        return new LeakyTokenBucket(capacity, initialTokens, refillStrategy, sleepStrategy);
     }
 
 }

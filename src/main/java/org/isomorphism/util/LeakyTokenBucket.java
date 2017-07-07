@@ -28,13 +28,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * 另外在这个实现中，退让CPU控制(yield cpu control)的方法封装在提供的{@code SleepStrategy}实例中。
  * 对于高性能应用程序，其中令牌快速重新填充，需要不让出CPU， 这个策略允许调用者为自己做出这个决定。
  */
-class TokenBucketImpl implements TokenBucket {
+public class LeakyTokenBucket implements TokenBucket {
     private final long capacity;
     private final RefillStrategy refillStrategy;
     private final SleepStrategy sleepStrategy;
     private long size;
 
-    TokenBucketImpl(long capacity, long initialTokens, RefillStrategy refillStrategy, SleepStrategy sleepStrategy) {
+    LeakyTokenBucket(long capacity, long initialTokens, RefillStrategy refillStrategy, SleepStrategy sleepStrategy) {
         checkArgument(capacity > 0);
         checkArgument(initialTokens <= capacity);
 

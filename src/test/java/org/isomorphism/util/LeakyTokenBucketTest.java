@@ -22,26 +22,26 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
-public class TokenBucketImplTest {
+public class LeakyTokenBucketTest {
     private static final long CAPACITY = 10;
 
     private final MockRefillStrategy refillStrategy = new MockRefillStrategy();
     private final TokenBucket.SleepStrategy sleepStrategy = mock(TokenBucket.SleepStrategy.class);
-    private final TokenBucketImpl bucket = new TokenBucketImpl(CAPACITY, 0, refillStrategy, sleepStrategy);
+    private final LeakyTokenBucket bucket = new LeakyTokenBucket(CAPACITY, 0, refillStrategy, sleepStrategy);
 
     @Test(expected = IllegalArgumentException.class)
     public void testNegativeCapacity() {
-        new TokenBucketImpl(-1, 0, refillStrategy, sleepStrategy);
+        new LeakyTokenBucket(-1, 0, refillStrategy, sleepStrategy);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testZeroCapacity() {
-        new TokenBucketImpl(0, 0, refillStrategy, sleepStrategy);
+        new LeakyTokenBucket(0, 0, refillStrategy, sleepStrategy);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testMoreInitialTokensThanCapacity() {
-        new TokenBucketImpl(1, 2, refillStrategy, sleepStrategy);
+        new LeakyTokenBucket(1, 2, refillStrategy, sleepStrategy);
     }
 
     @Test
@@ -56,7 +56,7 @@ public class TokenBucketImplTest {
 
     @Test
     public void testBucketWithInitialTokens() {
-        TokenBucketImpl bucket = new TokenBucketImpl(CAPACITY, CAPACITY, refillStrategy, sleepStrategy);
+        LeakyTokenBucket bucket = new LeakyTokenBucket(CAPACITY, CAPACITY, refillStrategy, sleepStrategy);
         assertEquals(CAPACITY, bucket.getNumTokens());
     }
 
@@ -189,7 +189,7 @@ public class TokenBucketImplTest {
         assertFalse(bucket.tryConsume(1));
     }
 
-    private static final class MockRefillStrategy implements TokenBucketImpl.RefillStrategy {
+    private static final class MockRefillStrategy implements LeakyTokenBucket.RefillStrategy {
         private long numTokensToAdd = 0;
 
         public long refill() {
