@@ -16,6 +16,7 @@
 package org.isomorphism.util;
 
 import com.google.common.base.Ticker;
+import org.isomorphism.util.strategy.FixedIntervalRefillStrategy;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;

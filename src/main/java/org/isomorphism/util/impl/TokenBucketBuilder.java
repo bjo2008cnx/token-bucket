@@ -1,7 +1,11 @@
-package org.isomorphism.util;
+package org.isomorphism.util.impl;
 
 import com.google.common.base.Ticker;
 import com.google.common.util.concurrent.Uninterruptibles;
+import org.isomorphism.util.TokenBucket;
+import org.isomorphism.util.strategy.FixedIntervalRefillStrategy;
+import org.isomorphism.util.strategy.RefillStrategy;
+import org.isomorphism.util.strategy.SleepStrategy;
 
 import java.util.concurrent.TimeUnit;
 
@@ -11,11 +15,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class TokenBucketBuilder {
     private Long capacity = null;
     private long initialTokens = 0;
-    private LeakyTokenBucket.RefillStrategy refillStrategy = null;
-    private LeakyTokenBucket.SleepStrategy sleepStrategy = YIELDING_SLEEP_STRATEGY;
+    private RefillStrategy refillStrategy = null;
+    private SleepStrategy sleepStrategy = YIELDING_SLEEP_STRATEGY;
     private final Ticker ticker = Ticker.systemTicker();
 
-    static final LeakyTokenBucket.SleepStrategy YIELDING_SLEEP_STRATEGY = new LeakyTokenBucket.SleepStrategy() {
+    static final SleepStrategy YIELDING_SLEEP_STRATEGY = new SleepStrategy() {
         @Override
         public void sleep() {
             // 睡眠1个ns的时间，放弃控制，允许其他线程运行。
@@ -23,7 +27,7 @@ public class TokenBucketBuilder {
         }
     };
 
-    static final LeakyTokenBucket.SleepStrategy BUSY_WAIT_SLEEP_STRATEGY = new LeakyTokenBucket.SleepStrategy() {
+    static final SleepStrategy BUSY_WAIT_SLEEP_STRATEGY = new SleepStrategy() {
         @Override
         public void sleep() {
             // Do nothing, don't sleep.
@@ -62,7 +66,7 @@ public class TokenBucketBuilder {
     /**
      * 使用用户定义的充值策略。
      */
-    public TokenBucketBuilder withRefillStrategy(TokenBucket.RefillStrategy refillStrategy) {
+    public TokenBucketBuilder withRefillStrategy(RefillStrategy refillStrategy) {
         this.refillStrategy = checkNotNull(refillStrategy);
         return this;
     }
@@ -84,7 +88,7 @@ public class TokenBucketBuilder {
     /**
      * 使用用户定义的睡眠策略。
      */
-    public TokenBucketBuilder withSleepStrategy(TokenBucket.SleepStrategy sleepStrategy) {
+    public TokenBucketBuilder withSleepStrategy(SleepStrategy sleepStrategy) {
         this.sleepStrategy = checkNotNull(sleepStrategy);
         return this;
     }

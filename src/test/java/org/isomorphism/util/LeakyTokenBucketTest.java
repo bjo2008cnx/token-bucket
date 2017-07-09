@@ -15,6 +15,9 @@
  */
 package org.isomorphism.util;
 
+import org.isomorphism.util.impl.LeakyTokenBucket;
+import org.isomorphism.util.strategy.RefillStrategy;
+import org.isomorphism.util.strategy.SleepStrategy;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
@@ -26,7 +29,7 @@ public class LeakyTokenBucketTest {
     private static final long CAPACITY = 10;
 
     private final MockRefillStrategy refillStrategy = new MockRefillStrategy();
-    private final TokenBucket.SleepStrategy sleepStrategy = mock(TokenBucket.SleepStrategy.class);
+    private final SleepStrategy sleepStrategy = mock(SleepStrategy.class);
     private final LeakyTokenBucket bucket = new LeakyTokenBucket(CAPACITY, 0, refillStrategy, sleepStrategy);
 
     @Test(expected = IllegalArgumentException.class)
@@ -189,7 +192,7 @@ public class LeakyTokenBucketTest {
         assertFalse(bucket.tryConsume(1));
     }
 
-    private static final class MockRefillStrategy implements LeakyTokenBucket.RefillStrategy {
+    private static final class MockRefillStrategy implements RefillStrategy {
         private long numTokensToAdd = 0;
 
         public long refill() {

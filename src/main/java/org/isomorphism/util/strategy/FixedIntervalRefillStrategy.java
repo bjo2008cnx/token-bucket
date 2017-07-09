@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.isomorphism.util;
+package org.isomorphism.util.strategy;
 
 import com.google.common.base.Ticker;
 
@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
  * 令牌桶补充策略，每T个时间单位将为令牌桶提供N个令牌。
  * 令牌以突发而不是固定速率重新填充。这种补充策略将永远不会允许在时间T的窗口内消耗多于N个令牌。
  */
-public class FixedIntervalRefillStrategy implements LeakyTokenBucket.RefillStrategy {
+public class FixedIntervalRefillStrategy implements RefillStrategy {
     private final Ticker ticker;
     private final long numTokensPerPeriod;
     private final long periodDurationInNanos;
