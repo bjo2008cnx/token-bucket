@@ -1,17 +1,3 @@
-/*
- * Copyright (C) 2006 The Guava Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.isomorphism.limit.ratelimiter;
 
 import com.google.common.util.concurrent.ExecutionError;
@@ -24,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Imposes a time limit on method calls.
+ * 对方法调用加上时间限制
  *
  * @author Kevin Bourrillion
  * @author Jens Nyman
@@ -33,24 +19,15 @@ import java.util.concurrent.TimeoutException;
 public interface TimeLimiter {
 
   /**
-   * Returns an instance of {@code interfaceType} that delegates all method calls to the
-   * {@code target} object, enforcing the specified time limit on each call. This time-limited
-   * delegation is also performed for calls to {@link Object#equals}, {@link Object#hashCode}, and
-   * {@link Object#toString}.
+   * 返回{@code interfaceType}的一个实例，它将所有方法调用委托给{@code target}对象，对每个调用执行指定的时间限制。
+   * 对于{@link Object＃equals}，{@link Object＃hashCode}和{@link Object＃toString}的调用，也会执行此时间有限的委托。
    *
-   * <p>If the target method call finishes before the limit is reached, the return value or
-   * exception is propagated to the caller exactly as-is. If, on the other hand, the time limit is
-   * reached, the proxy will attempt to abort the call to the target, and will throw an
-   * {@link UncheckedTimeoutException} to the caller.
+   * 如果目标方法调用在达到限制之前完成，返回值或异常将按原样传播到调用者。如果达到时间限制，代理将尝试中止对目标的调用，并将向调用者发出一个{@link UncheckedTimeoutException}。
    *
-   * <p>It is important to note that the primary purpose of the proxy object is to return control to
-   * the caller when the timeout elapses; aborting the target method call is of secondary concern.
-   * The particular nature and strength of the guarantees made by the proxy is
-   * implementation-dependent. However, it is important that each of the methods on the target
-   * object behaves appropriately when its thread is interrupted.
+   * 注意:代理对象的主要目的是在超时过程时将控制权返回给调用者; 中止目标方法调用是次要考虑。
+   * 由代理作出的保证的特殊性质和强度是与实现相关的。 但是，当线程中断时，目标对象上的每个方法都能很好工作(behaves appropriately)。
    *
-   * <p>For example, to return the value of {@code target.someMethod()}, but substitute {@code
-   * DEFAULT_VALUE} if this method call takes over 50 ms, you can use this code:
+   * <p>For example, to return the value of {@code target.someMethod()}, but substitute {@code DEFAULT_VALUE} if this method call takes over 50 ms, you can use this code:
    *
    * <pre>
    *   TimeLimiter limiter = . . .;
