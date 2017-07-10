@@ -53,14 +53,14 @@ public class FixedIntervalRefillStrategy implements RefillStrategy {
             return 0;
         }
 
-        // We now know that we need to refill the bucket with some tokens, the question is how many.  We need to count how
-        // many periods worth of tokens we've missed.
+
+        // 需要用一些令牌来重新填充桶， 我们需要计算出我们错过了多少个令牌值。
         long numPeriods = Math.max(0, (now - lastRefillTime) / periodDurationInNanos);
 
-        // Move the last refill time forward by this many periods.
+        // 将最后一次充值时间提前一段时间
         lastRefillTime += numPeriods * periodDurationInNanos;
 
-        // ...and we'll refill again one period after the last time we refilled.
+        // 我们将在上一次重新填补后再次补充一次。
         nextRefillTime = lastRefillTime + periodDurationInNanos;
 
         return numPeriods * numTokensPerPeriod;
