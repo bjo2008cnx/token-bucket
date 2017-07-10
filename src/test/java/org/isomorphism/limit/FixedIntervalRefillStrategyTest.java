@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.isomorphism.util;
+package org.isomorphism.limit;
 
 import com.google.common.base.Ticker;
-import org.isomorphism.util.strategy.FixedIntervalRefillStrategy;
+import org.isomorphism.limit.tokenbuket.strategy.FixedIntervalRefillStrategy;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;

@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.isomorphism.util;
+package org.isomorphism.limit;
 
-import org.isomorphism.util.impl.LeakyTokenBucket;
-import org.isomorphism.util.strategy.RefillStrategy;
-import org.isomorphism.util.strategy.SleepStrategy;
+import org.isomorphism.limit.tokenbuket.impl.LeakyTokenBucket;
+import org.isomorphism.limit.tokenbuket.strategy.RefillStrategy;
+import org.isomorphism.limit.tokenbuket.strategy.SleepStrategy;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
