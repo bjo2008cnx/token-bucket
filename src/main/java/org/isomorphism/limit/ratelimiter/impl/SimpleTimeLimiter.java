@@ -19,8 +19,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * A TimeLimiter that runs method calls in the background using an {@link ExecutorService}. If the
- * time limit expires for a given method call, the thread running the call will be interrupted.
+ * TimeLimiter使用{@link ExecutorService}在后台运行方法调用。 如果给定的方法调用的时间限制到期，则运行该调用的线程将被中断。
  *
  * @author Kevin Bourrillion
  * @author Jens Nyman
@@ -31,17 +30,12 @@ public final class SimpleTimeLimiter implements TimeLimiter {
     private final ExecutorService executor;
 
     /**
-     * Constructs a TimeLimiter instance using the given executor service to execute proxied method
-     * calls.
-     * <p>
-     * <p><b>Warning:</b> using a bounded executor may be counterproductive! If the thread pool fills
-     * up, any time callers spend waiting for a thread may count toward their time limit, and in this
-     * case the call may even time out before the target method is ever invoked.
+     * 使用给定的ExecutorService服务构造一个TimeLimiter实例来执行代理方法调用。
+     *       
+     * <b>警告：使用有限的执行者可能会适得其反！ 如果线程池满，任何时间呼叫者花费等待线程可能会计入其时间限制，在这种情况下，在调用目标方法之前，调用甚至可能会超时。
      *
-     * @param executor the ExecutorService that will execute the method calls on the target objects;
-     *                 for example, a {@link Executors#newCachedThreadPool()}.
-     * @deprecated Use {@link #create(ExecutorService)} instead. This method is scheduled to be
-     * removed in Guava 23.0.
+     * @param执行器将执行对目标对象的方法调用的ExecutorService; 例如，{@link Executors＃newCachedThreadPool（）}。
+     * @deprecated替代使用{@link #create（ExecutorService）}。
      */
     @Deprecated
     public SimpleTimeLimiter(ExecutorService executor) {
@@ -49,15 +43,11 @@ public final class SimpleTimeLimiter implements TimeLimiter {
     }
 
     /**
-     * Constructs a TimeLimiter instance using a {@link Executors#newCachedThreadPool()} to execute
-     * proxied method calls.
+     * 使用{@link Executors＃newCachedThreadPool（）}构造一个TimeLimiter实例来执行代理方法调用。
      * <p>
-     * <p><b>Warning:</b> using a bounded executor may be counterproductive! If the thread pool fills
-     * up, any time callers spend waiting for a thread may count toward their time limit, and in this
-     * case the call may even time out before the target method is ever invoked.
+     * <p>警告：使用有限的执行者可能会适得其反！ 如果线程池充满，任何时间呼叫者花费等待线程可能会计入其时间限制，在这种情况下，在调用目标方法之前，调用甚至可能会超时。
      *
-     * @deprecated Use {@link #create(ExecutorService)} instead with {@code
-     * Executors.newCachedThreadPool()}. This method is scheduled to be removed in Guava 23.0.
+     * @deprecated 使用{@code Executors.newCachedThreadPool（）}替代{@link #create（ExecutorService）}。
      */
     @Deprecated
     public SimpleTimeLimiter() {
@@ -65,15 +55,10 @@ public final class SimpleTimeLimiter implements TimeLimiter {
     }
 
     /**
-     * Creates a TimeLimiter instance using the given executor service to execute method calls.
-     * <p>
-     * <p><b>Warning:</b> using a bounded executor may be counterproductive! If the thread pool fills
-     * up, any time callers spend waiting for a thread may count toward their time limit, and in this
-     * case the call may even time out before the target method is ever invoked.
+     * 使用给定的执行程序服务创建一个TimeLimiter实例来执行方法调用。
+     * <b>Warning:</b> 使用有限的执行者可能会适得其反！ 如果线程池充满，任何时间呼叫者花费等待线程可能会计入其时间限制，在这种情况下，在调用目标方法之前，调用甚至可能会超时。
      *
-     * @param executor the ExecutorService that will execute the method calls on the target objects;
-     *                 for example, a {@link Executors#newCachedThreadPool()}.
-     * @since 22.0
+     * @param executor 将执行对目标对象的方法调用的ExecutorService; 例如{@link Executors＃newCachedThreadPool（）}。
      */
     public static SimpleTimeLimiter create(ExecutorService executor) {
         return new SimpleTimeLimiter(executor);
@@ -253,7 +238,7 @@ public final class SimpleTimeLimiter implements TimeLimiter {
         return false;
     }
 
-    // TODO: replace with version in common.reflect if and when it's open-sourced
+    // TODO: 替换为common.reflect的版本，如果到时是开源的
     private static <T> T newProxy(Class<T> interfaceType, InvocationHandler handler) {
         Object object = Proxy.newProxyInstance(interfaceType.getClassLoader(), new Class<?>[]{interfaceType}, handler);
         return interfaceType.cast(object);
