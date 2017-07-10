@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.light.guava.limit;
+package org.isomorphism.limit;
 
 import com.google.common.util.concurrent.ExecutionError;
 import com.google.common.util.concurrent.UncheckedExecutionException;

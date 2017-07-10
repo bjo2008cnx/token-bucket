@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.isomorphism.util.impl;
+package org.isomorphism.limit.impl;
 
-import org.isomorphism.util.TokenBucket;
-import org.isomorphism.util.strategy.RefillStrategy;
-import org.isomorphism.util.strategy.SleepStrategy;
+import org.isomorphism.limit.TokenBucket;
+import org.isomorphism.limit.strategy.RefillStrategy;
+import org.isomorphism.limit.strategy.SleepStrategy;
 
 import java.util.concurrent.TimeUnit;
 
@@ -75,7 +75,7 @@ public class LeakyTokenBucket implements TokenBucket {
      *
      * @param unit 时间单位
      * @return 直到下一组令牌可以添加到令牌桶的时间
-     * @see org.isomorphism.util.strategy.RefillStrategy#getDurationUntilNextRefill(java.util.concurrent.TimeUnit)
+     * @see org.isomorphism.limit.strategy.RefillStrategy#getDurationUntilNextRefill(java.util.concurrent.TimeUnit)
      */
     @Override
     public long getDurationUntilNextRefill(TimeUnit unit) throws UnsupportedOperationException {

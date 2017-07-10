@@ -1,4 +1,4 @@
-package org.isomorphism.util.strategy;
+package org.isomorphism.limit.strategy;
 
 /**
      * 封装放弃CPU控制策略。

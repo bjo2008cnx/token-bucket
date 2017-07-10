@@ -1,4 +1,4 @@
-package org.isomorphism.util.strategy;
+package org.isomorphism.limit.strategy;
 
 import java.util.concurrent.TimeUnit;
 

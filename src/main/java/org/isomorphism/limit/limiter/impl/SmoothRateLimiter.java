@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.light.guava.limit;
+package org.isomorphism.limit.limiter.impl;
 
 import com.google.common.math.LongMath;
 

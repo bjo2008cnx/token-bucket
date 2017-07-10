@@ -1,5 +1,5 @@
 
-package org.light.guava.limit;
+package org.isomorphism.limit.limiter.impl;
 
 import com.google.common.collect.ObjectArrays;
 import com.google.common.collect.Sets;
@@ -7,6 +7,7 @@ import com.google.common.util.concurrent.ExecutionError;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.google.common.util.concurrent.UncheckedTimeoutException;
 import com.google.common.util.concurrent.Uninterruptibles;
+import org.isomorphism.limit.TimeLimiter;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
