@@ -1,11 +1,11 @@
-package org.isomorphism.limit.impl;
+package org.isomorphism.limit.tokenbuket.impl;
 
 import com.google.common.base.Ticker;
 import com.google.common.util.concurrent.Uninterruptibles;
-import org.isomorphism.limit.TokenBucket;
-import org.isomorphism.limit.strategy.FixedIntervalRefillStrategy;
-import org.isomorphism.limit.strategy.RefillStrategy;
-import org.isomorphism.limit.strategy.SleepStrategy;
+import org.isomorphism.limit.tokenbuket.TokenBucket;
+import org.isomorphism.limit.tokenbuket.strategy.FixedIntervalRefillStrategy;
+import org.isomorphism.limit.tokenbuket.strategy.RefillStrategy;
+import org.isomorphism.limit.tokenbuket.strategy.SleepStrategy;
 
 import java.util.concurrent.TimeUnit;
 

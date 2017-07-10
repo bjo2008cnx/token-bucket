@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.isomorphism.limit;
+package org.isomorphism.limit.tokenbuket;
 
 import java.util.concurrent.TimeUnit;
 
@@ -43,7 +43,7 @@ public interface TokenBucket {
      *
      * @param unit 表示返回值的时间单位.
      * @return 下一组令牌可以添加到令牌桶中的时间。
-     * @see org.isomorphism.limit.strategy.RefillStrategy#getDurationUntilNextRefill(java.util.concurrent.TimeUnit)
+     * @see org.isomorphism.limit.tokenbuket.strategy.RefillStrategy#getDurationUntilNextRefill(java.util.concurrent.TimeUnit)
      */
     long getDurationUntilNextRefill(TimeUnit unit) throws UnsupportedOperationException;
 

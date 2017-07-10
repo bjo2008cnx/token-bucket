@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.isomorphism.limit.limiter.impl;
+package org.isomorphism.limit.ratelimiter.impl;
 
 import com.google.common.math.LongMath;
 

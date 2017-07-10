@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.isomorphism.limit;
+package org.isomorphism.limit.ratelimiter;
 
 import com.google.common.util.concurrent.ExecutionError;
 import com.google.common.util.concurrent.UncheckedExecutionException;

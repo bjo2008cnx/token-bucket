@@ -1,5 +1,5 @@
 
-package org.isomorphism.limit.limiter.impl;
+package org.isomorphism.limit.ratelimiter.impl;
 
 import com.google.common.collect.ObjectArrays;
 import com.google.common.collect.Sets;
@@ -7,7 +7,7 @@ import com.google.common.util.concurrent.ExecutionError;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.google.common.util.concurrent.UncheckedTimeoutException;
 import com.google.common.util.concurrent.Uninterruptibles;
-import org.isomorphism.limit.TimeLimiter;
+import org.isomorphism.limit.ratelimiter.TimeLimiter;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
