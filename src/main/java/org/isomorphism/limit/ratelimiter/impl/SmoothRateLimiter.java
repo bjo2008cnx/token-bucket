@@ -1,17 +1,3 @@
-/*
- * Copyright (C) 2012 The Guava Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.isomorphism.limit.ratelimiter.impl;
 
 import com.google.common.math.LongMath;
@@ -202,105 +188,9 @@ public abstract class SmoothRateLimiter extends RateLimiter {
      * <p>
      * </ul>
      */
-    static final class SmoothWarmingUp extends SmoothRateLimiter {
-        private final long warmupPeriodMicros;
-        /**
-         * The slope of the line from the stable interval (when permits == 0), to the cold interval
-         * (when permits == maxPermits)
-         */
-        private double slope;
-        private double thresholdPermits;
-        private double coldFactor;
 
-        SmoothWarmingUp(RateLimiter.SleepingStopwatch stopwatch, long warmupPeriod, TimeUnit timeUnit, double coldFactor) {
-            super(stopwatch);
-            this.warmupPeriodMicros = timeUnit.toMicros(warmupPeriod);
-            this.coldFactor = coldFactor;
-        }
 
-        @Override
-        void doSetRate(double permitsPerSecond, double stableIntervalMicros) {
-            double oldMaxPermits = maxPermits;
-            double coldIntervalMicros = stableIntervalMicros * coldFactor;
-            thresholdPermits = 0.5 * warmupPeriodMicros / stableIntervalMicros;
-            maxPermits = thresholdPermits + 2.0 * warmupPeriodMicros / (stableIntervalMicros + coldIntervalMicros);
-            slope = (coldIntervalMicros - stableIntervalMicros) / (maxPermits - thresholdPermits);
-            if (oldMaxPermits == Double.POSITIVE_INFINITY) {
-                // if we don't special-case this, we would get storedPermits == NaN, below
-                storedPermits = 0.0;
-            } else {
-                storedPermits = (oldMaxPermits == 0.0) ? maxPermits // initial state is cold
-                        : storedPermits * maxPermits / oldMaxPermits;
-            }
-        }
 
-        @Override
-        long storedPermitsToWaitTime(double storedPermits, double permitsToTake) {
-            double availablePermitsAboveThreshold = storedPermits - thresholdPermits;
-            long micros = 0;
-            // measuring the integral on the right part of the function (the climbing line)
-            if (availablePermitsAboveThreshold > 0.0) {
-                double permitsAboveThresholdToTake = min(availablePermitsAboveThreshold, permitsToTake);
-                // TODO(cpovirk): Figure out a good name for this variable.
-                double length = permitsToTime(availablePermitsAboveThreshold) + permitsToTime(availablePermitsAboveThreshold - permitsAboveThresholdToTake);
-                micros = (long) (permitsAboveThresholdToTake * length / 2.0);
-                permitsToTake -= permitsAboveThresholdToTake;
-            }
-            // measuring the integral on the left part of the function (the horizontal line)
-            micros += (stableIntervalMicros * permitsToTake);
-            return micros;
-        }
-
-        private double permitsToTime(double permits) {
-            return stableIntervalMicros + permits * slope;
-        }
-
-        @Override
-        double coolDownIntervalMicros() {
-            return warmupPeriodMicros / maxPermits;
-        }
-    }
-
-    /**
-     * This implements a "bursty" RateLimiter, where storedPermits are translated to zero throttling.
-     * The maximum number of permits that can be saved (when the RateLimiter is unused) is defined in
-     * terms of time, in this sense: if a RateLimiter is 2qps, and this time is specified as 10
-     * seconds, we can save up to 2 * 10 = 20 permits.
-     */
-    static final class SmoothBursty extends SmoothRateLimiter {
-        /**
-         * The work (permits) of how many seconds can be saved up if this RateLimiter is unused?
-         */
-        final double maxBurstSeconds;
-
-        SmoothBursty(RateLimiter.SleepingStopwatch stopwatch, double maxBurstSeconds) {
-            super(stopwatch);
-            this.maxBurstSeconds = maxBurstSeconds;
-        }
-
-        @Override
-        void doSetRate(double permitsPerSecond, double stableIntervalMicros) {
-            double oldMaxPermits = this.maxPermits;
-            maxPermits = maxBurstSeconds * permitsPerSecond;
-            if (oldMaxPermits == Double.POSITIVE_INFINITY) {
-                // if we don't special-case this, we would get storedPermits == NaN, below
-                storedPermits = maxPermits;
-            } else {
-                storedPermits = (oldMaxPermits == 0.0) ? 0.0 // initial state
-                        : storedPermits * maxPermits / oldMaxPermits;
-            }
-        }
-
-        @Override
-        long storedPermitsToWaitTime(double storedPermits, double permitsToTake) {
-            return 0L;
-        }
-
-        @Override
-        double coolDownIntervalMicros() {
-            return stableIntervalMicros;
-        }
-    }
 
     /**
      * The currently stored permits.
@@ -324,7 +214,7 @@ public abstract class SmoothRateLimiter extends RateLimiter {
      */
     private long nextFreeTicketMicros = 0L; // could be either in the past or future
 
-    private SmoothRateLimiter(RateLimiter.SleepingStopwatch stopwatch) {
+    SmoothRateLimiter(RateLimiter.SleepingStopwatch stopwatch) {
         super(stopwatch);
     }
 

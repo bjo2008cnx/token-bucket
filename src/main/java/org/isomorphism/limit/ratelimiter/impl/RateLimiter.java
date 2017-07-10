@@ -1,17 +1,3 @@
-/*
- * Copyright (C) 2012 The Guava Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.isomorphism.limit.ratelimiter.impl;
 
 import com.google.common.annotations.Beta;
@@ -32,79 +18,47 @@ import static java.util.concurrent.TimeUnit.MICROSECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
- * A rate limiter. Conceptually, a rate limiter distributes permits at a configurable rate. Each
- * {@link #acquire()} blocks if necessary until a permit is available, and then takes it. Once
- * acquired, permits need not be released.
+ * 速率限制器以可配置的速率分配许可证。 如果需要，每个{@link #acquire（）}将阻塞，直到许可证可用，然后才能使用它。 一旦获得，许可证不需要被释放。
+ * 速率限制器通常用于限制访问某些物理或逻辑资源的速率。
+ * 这与{@link java.util.concurrent.Semaphore}相反，{@link java.util.concurrent.Semaphore}限制了并发访问次数而不是速率（注意并发和速率是密切相关的，
+ * 参见<a href="http://en.wikipedia.org/wiki/Little%27s_law">Little's  * Law</a>).
+ * {@code RateLimiter}主要由许可证发放的速率定义。 没有额外的配置，许可证将以固定的速率分配，按照许可证/每秒定义。 许可证将顺利分发，调整许可证之间的延迟，使速率得以维持。
  * <p>
- * <p>Rate limiters are often used to restrict the rate at which some physical or logical resource
- * is accessed. This is in contrast to {@link java.util.concurrent.Semaphore} which restricts the
- * number of concurrent accesses instead of the rate (note though that concurrency and rate are
- * closely related, e.g. see <a href="http://en.wikipedia.org/wiki/Little%27s_law">Little's
- * Law</a>).
- * <p>
- * <p>A {@code RateLimiter} is defined primarily by the rate at which permits are issued. Absent
- * additional configuration, permits will be distributed at a fixed rate, defined in terms of
- * permits per second. Permits will be distributed smoothly, with the delay between individual
- * permits being adjusted to ensure that the configured rate is maintained.
- * <p>
- * <p>It is possible to configure a {@code RateLimiter} to have a warmup period during which time
- * the permits issued each second steadily increases until it hits the stable rate.
- * <p>
- * <p>As an example, imagine that we have a list of tasks to execute, but we don't want to submit
- * more than 2 per second: <pre>   {@code
- *  final RateLimiter rateLimiter = RateLimiter.create(2.0); // rate is "2 permits per second"
+ * <p>可以配置{@code RateLimiter}进行预热，在此期间，每次发出的许可证会稳定增加，直到达到稳定速率。 <p>
+ * <p>例如，假设我们有一个要执行的任务列表，但是我们不想每秒提交超过2个：
+ * <pre>   {@code
+ *  final RateLimiter rateLimiter = RateLimiter.create(2.0); // 每秒不超过2个
  *  void submitTasks(List<Runnable> tasks, Executor executor) {
  *    for (Runnable task : tasks) {
- *      rateLimiter.acquire(); // may wait
+ *      rateLimiter.acquire(); // 可能会等待
  *      executor.execute(task);
  *    }
  *  }}</pre>
  * <p>
- * <p>As another example, imagine that we produce a stream of data, and we want to cap it at 5kb per
- * second. This could be accomplished by requiring a permit per byte, and specifying a rate of 5000
- * permits per second: <pre>   {@code
+ * <p>另一个例子，假设我们产生一个数据流，我们希望以每秒5kb的速度上限。 这可以通过要求每个字节的许可证，并指定每秒5000个许可证的速率来实现：
+ * <pre>   {@code
  *  final RateLimiter rateLimiter = RateLimiter.create(5000.0); // rate = 5000 permits per second
  *  void submitPacket(byte[] packet) {
  *    rateLimiter.acquire(packet.length);
  *    networkService.send(packet);
  *  }}</pre>
  * <p>
- * <p>It is important to note that the number of permits requested <i>never</i> affects the
- * throttling of the request itself (an invocation to {@code acquire(1)} and an invocation to
- * {@code acquire(1000)} will result in exactly the same throttling, if any), but it affects the
- * throttling of the <i>next</i> request. I.e., if an expensive task arrives at an idle RateLimiter,
- * it will be granted immediately, but it is the <i>next</i> request that will experience extra
- * throttling, thus paying for the cost of the expensive task.
- * <p>
- * <p>Note: {@code RateLimiter} does not provide fairness guarantees.
- *
- * @author Dimitris Andreou
- * @since 13.0
+ * <p>Note: {@code RateLimiter} 不提供公平的保证。
  */
-// TODO(user): switch to nano precision. A natural unit of cost is "bytes", and a micro precision
-// would mean a maximum rate of "1MB/s", which might be small in some cases.
+// TODO(user):切换到纳米精度。 成本的自然单位是“字节”，并且具有微精度
 @ThreadSafe
 @Beta
 @GwtIncompatible
 public abstract class RateLimiter {
     /**
-     * Creates a {@code RateLimiter} with the specified stable throughput, given as
-     * "permits per second" (commonly referred to as <i>QPS</i>, queries per second).
-     * <p>
-     * <p>The returned {@code RateLimiter} ensures that on average no more than {@code
-     * permitsPerSecond} are issued during any given second, with sustained requests being smoothly
-     * spread over each second. When the incoming request rate exceeds {@code permitsPerSecond} the
-     * rate limiter will release one permit every {@code
-     * (1.0 / permitsPerSecond)} seconds. When the rate limiter is unused, bursts of up to
-     * {@code permitsPerSecond} permits will be allowed, with subsequent requests being smoothly
-     * limited at the stable rate of {@code permitsPerSecond}.
+     * 以指定的稳定吞吐量创建一个{@code RateLimiter}，giaven为“每秒允许”（通常称为“iPSQ”，每秒查询数）。<P>
+     * 当传入请求率超过{@code permitPerSecond}时，速率限制器将每{@code（1.0 / licensesPerSecond）}秒释放一个许可证。
+     * 速率限制器未使用时，将允许多达{@code permitPerSecond}许可证的突发数据，随后的请求以{@code licensesPerSecond}的稳定速率平滑地受到限制。
      *
-     * @param permitsPerSecond the rate of the returned {@code RateLimiter}, measured in how many
-     *                         permits become available per second
-     * @throws IllegalArgumentException if {@code permitsPerSecond} is negative or zero
+     * @param permitsPerSecond 返回的{@code RateLimiter}的速率，以每秒可用的许可证数量为单位
+     * @throws IllegalArgumentException 如果{@code permitPerSecond}为负数或零
      */
-    // TODO(user): "This is equivalent to
-    // {@code createWithCapacity(permitsPerSecond, 1, TimeUnit.SECONDS)}".
+    // TODO(user): "这相当于{@code createWithCapacity(permitsPerSecond, 1, TimeUnit.SECONDS)}".
     public static RateLimiter create(double permitsPerSecond) {
     /*
      * The default RateLimiter configuration can save the unused permits of up to one second. This
@@ -128,7 +82,7 @@ public abstract class RateLimiter {
      */
     @VisibleForTesting
     static RateLimiter create(SleepingStopwatch stopwatch, double permitsPerSecond) {
-        RateLimiter rateLimiter = new SmoothRateLimiter.SmoothBursty(stopwatch, 1.0 /* maxBurstSeconds */);
+        RateLimiter rateLimiter = new SmoothBursty(stopwatch, 1.0 /* maxBurstSeconds */);
         rateLimiter.setRate(permitsPerSecond);
         return rateLimiter;
     }
@@ -164,7 +118,7 @@ public abstract class RateLimiter {
 
     @VisibleForTesting
     static RateLimiter create(SleepingStopwatch stopwatch, double permitsPerSecond, long warmupPeriod, TimeUnit unit, double coldFactor) {
-        RateLimiter rateLimiter = new SmoothRateLimiter.SmoothWarmingUp(stopwatch, warmupPeriod, unit, coldFactor);
+        RateLimiter rateLimiter = new SmoothWarmingUp(stopwatch, warmupPeriod, unit, coldFactor);
         rateLimiter.setRate(permitsPerSecond);
         return rateLimiter;
     }
