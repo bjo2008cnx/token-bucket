@@ -85,7 +85,7 @@ public class LeakyTokenBucket implements TokenBucket {
     /**
      * 尝试从桶中消耗单个令牌。 如果它被消耗，则返回{@code true}，否则返回{@code false}。
      *
-     * @return  如果它被消耗，则返回{@code true}，否则返回{@code false}。
+     * @return 如果它被消耗，则返回{@code true}，否则返回{@code false}。
      */
     public boolean tryConsume() {
         return tryConsume(1);

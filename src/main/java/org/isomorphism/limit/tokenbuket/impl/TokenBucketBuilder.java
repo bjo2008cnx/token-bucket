@@ -38,6 +38,7 @@ public class TokenBucketBuilder {
     public static TokenBucketBuilder builder() {
         return new TokenBucketBuilder();
     }
+
     /**
      * 指定令牌桶的总容量。
      */
