@@ -92,10 +92,9 @@ public abstract class AbstractRateLimiter implements RateLimiter {
     }
 
     /**
-     * Reserves the given number of permits from this {@code AbstractRateLimiter} for future use, returning
-     * the number of microseconds until the reservation can be consumed.
+     * 从{@code AbstractRateLimiter}中预留给定数量的许可证以供将来使用，返回微秒数，直到预留被使用。
      *
-     * @return time in microseconds to wait until the resource can be acquired, never negative
+     * @return 资源可用的时间，以毫秒为单位
      */
     final long reserve(int permits) {
         checkPermits(permits);
