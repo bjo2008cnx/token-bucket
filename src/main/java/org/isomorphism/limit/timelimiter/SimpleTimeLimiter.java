@@ -20,11 +20,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * TimeLimiter使用{@link ExecutorService}在后台运行方法调用。 如果给定的方法调用的时间限制到期，则运行该调用的线程将被中断。
  *
- * @author Kevin Bourrillion
- * @author Jens Nyman
  * @since 1.0
  */
-public final class SimpleTimeLimiter implements TimeLimiter {
+public class SimpleTimeLimiter implements TimeLimiter {
 
     private final ExecutorService executor;
 
@@ -34,10 +32,8 @@ public final class SimpleTimeLimiter implements TimeLimiter {
      * <b>警告：使用有限的执行者可能会适得其反！ 如果线程池满，任何时间呼叫者花费等待线程可能会计入其时间限制，在这种情况下，在调用目标方法之前，调用甚至可能会超时。
      *
      * @param执行器将执行对目标对象的方法调用的ExecutorService; 例如，{@link Executors＃newCachedThreadPool（）}。
-     * @deprecated替代使用{@link #create（ExecutorService）}。
      */
-    @Deprecated
-    public SimpleTimeLimiter(ExecutorService executor) {
+     SimpleTimeLimiter(ExecutorService executor) {
         this.executor = checkNotNull(executor);
     }
 
@@ -48,8 +44,7 @@ public final class SimpleTimeLimiter implements TimeLimiter {
      *
      * @deprecated 使用{@code Executors.newCachedThreadPool（）}替代{@link #create（ExecutorService）}。
      */
-    @Deprecated
-    public SimpleTimeLimiter() {
+    SimpleTimeLimiter() {
         this(Executors.newCachedThreadPool());
     }
 
@@ -59,7 +54,7 @@ public final class SimpleTimeLimiter implements TimeLimiter {
      *
      * @param executor 将执行对目标对象的方法调用的ExecutorService; 例如{@link Executors＃newCachedThreadPool（）}。
      */
-    public static SimpleTimeLimiter create(ExecutorService executor) {
+    public static TimeLimiter create(ExecutorService executor) {
         return new SimpleTimeLimiter(executor);
     }
 
