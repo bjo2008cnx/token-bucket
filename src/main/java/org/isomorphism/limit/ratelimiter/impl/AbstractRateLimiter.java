@@ -1,11 +1,7 @@
 package org.isomorphism.limit.ratelimiter.impl;
 
-import com.google.common.annotations.Beta;
-import com.google.common.annotations.GwtIncompatible;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import org.isomorphism.limit.ratelimiter.RateLimiter;
 
-import javax.annotation.concurrent.ThreadSafe;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -15,9 +11,6 @@ import static java.lang.Math.max;
 import static java.util.concurrent.TimeUnit.MICROSECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-@ThreadSafe
-@Beta
-@GwtIncompatible
 public abstract class AbstractRateLimiter implements RateLimiter {
 
     /**
@@ -81,7 +74,6 @@ public abstract class AbstractRateLimiter implements RateLimiter {
      *
      * 执行速率的所需要的睡眠时间，单位为妙；如果没有则返回0
      */
-    @CanIgnoreReturnValue
     public double acquire() {
         return acquire(1);
     }
@@ -93,7 +85,6 @@ public abstract class AbstractRateLimiter implements RateLimiter {
      * @return 执行速率的所需要的睡眠时间，单位为妙；如果没有则返回0
      * @throws IllegalArgumentException 如果请求的许可数为负数或者为0
      */
-    @CanIgnoreReturnValue
     public double acquire(int permits) {
         long microsToWait = reserve(permits);
         stopwatch.sleepMicrosUninterruptibly(microsToWait);

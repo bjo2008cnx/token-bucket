@@ -1,5 +1,8 @@
 package org.isomorphism.limit.ratelimiter.impl;
 
+import org.isomorphism.limit.ratelimiter.RateLimiter;
+import org.isomorphism.limit.ratelimiter.RateLimiters;
+
 import java.util.concurrent.TimeUnit;
 
 
@@ -9,7 +12,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class RateLimiterTest {
     public static void main(String[] args) throws InterruptedException {
-        AbstractRateLimiter limiter = AbstractRateLimiter.create(5, 1000, TimeUnit.MILLISECONDS);
+        RateLimiter limiter = RateLimiters.create(5, 1000, TimeUnit.MILLISECONDS);
         for (int i = 0; i < 5; i++) {
             System.out.println(limiter.acquire());
         }
