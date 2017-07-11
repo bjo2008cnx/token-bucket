@@ -93,7 +93,6 @@ public final class SimpleTimeLimiter implements TimeLimiter {
         return newProxy(interfaceType, handler);
     }
 
-    // TODO: should this actually throw only ExecutionException?
     @Deprecated
     @Override
     public <T> T callWithTimeout(Callable<T> callable, long timeoutDuration, TimeUnit timeoutUnit, boolean amInterruptible) throws Exception {

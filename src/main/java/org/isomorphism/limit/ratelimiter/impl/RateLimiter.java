@@ -45,7 +45,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  *  但会影响下一次请求的限制，也就是说，如果一个高开销的任务抵达一个空闲的RateLimiter，它会被马上许可，但是下一个请求会经历额外的限制，从而来偿付高开销任务。
  *  注意：RateLimiter 并不提供公平性的保证。
  */
-// TODO(user):切换到纳米精度。 成本的自然单位是“字节”，并且具有微精度
 @ThreadSafe
 @Beta
 @GwtIncompatible
@@ -62,7 +61,7 @@ public abstract class RateLimiter {
      * @param permitsPerSecond 返回的{@code RateLimiter}的速率，以每秒可用的许可证数量为单位
      * @throws IllegalArgumentException 如果{@code permitPerSecond}为负数或零
      */
-    // TODO(user): "这相当于{@code createWithCapacity(permitsPerSecond, 1, TimeUnit.SECONDS)}".
+    // 这相当于{@code createWithCapacity(permitsPerSecond, 1, TimeUnit.SECONDS)}
     public static RateLimiter create(double permitsPerSecond) {
     /*
      * The default RateLimiter configuration can save the unused permits of up to one second. This
@@ -80,10 +79,6 @@ public abstract class RateLimiter {
         return create(SleepingStopwatch.createFromSystemTimer(), permitsPerSecond);
     }
 
-    /*
-     * TODO(cpovirk): make SleepingStopwatch the last parameter throughout the class so that the
-     * overloads follow the usual convention: Foo(int), Foo(int, SleepingStopwatch)
-     */
     @VisibleForTesting
     static RateLimiter create(SleepingStopwatch stopwatch, double permitsPerSecond) {
         RateLimiter rateLimiter = new SmoothBursty(stopwatch, 1.0 /* maxBurstSeconds */);
