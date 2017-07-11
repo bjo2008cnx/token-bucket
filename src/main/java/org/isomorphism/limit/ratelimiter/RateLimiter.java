@@ -7,9 +7,9 @@ import java.util.concurrent.TimeUnit;
  * 速率限制器通常用于限制访问某些物理或逻辑资源的速率。
  * 这与{@link java.util.concurrent.Semaphore}相反，{@link java.util.concurrent.Semaphore}限制了并发访问次数而不是速率（注意并发和速率是密切相关的，
  * 参见<a href="http://en.wikipedia.org/wiki/Little%27s_law">Little's  * Law</a>).
- * {@code AbstractRateLimiter}主要由许可证发放的速率定义。 没有额外的配置，许可证将以固定的速率分配，按照许可证/每秒定义。 许可证将顺利分发，调整许可证之间的延迟，使速率得以维持。
+ * {@code RateLimiter}主要由许可证发放的速率定义。 没有额外的配置，许可证将以固定的速率分配，按照许可证/每秒定义。 许可证将顺利分发，调整许可证之间的延迟，使速率得以维持。
  * <p>
- * <p>可以配置{@code AbstractRateLimiter}进行预热，在此期间，每次发出的许可证会稳定增加，直到达到稳定速率。 <p>
+ * <p>可以配置{@code RateLimiter}进行预热，在此期间，每次发出的许可证会稳定增加，直到达到稳定速率。 <p>
  * <p>例如，假设我们有一个要执行的任务列表，但是我们不想每秒提交超过2个：
  * <pre>   {@code
  *  final RateLimiter rateLimiter = RateLimiters.create(2.0); // 每秒不超过2个
@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  * <p>
  *  有一点很重要，那就是请求的许可数从来不会影响到请求本身的限制（调用acquire(1) 和调用acquire(1000) 将得到相同的限制效果，如果存在这样的调用的话），
  *  但会影响下一次请求的限制，也就是说，如果一个高开销的任务抵达一个空闲的RateLimiter，它会被马上许可，但是下一个请求会经历额外的限制，从而来偿付高开销任务。
- *  注意：AbstractRateLimiter 并不提供公平性的保证。
+ *  注意：RateLimiter 并不提供公平性的保证。
  *
  * @date 2017/7/11
  */
@@ -97,7 +97,7 @@ public interface RateLimiter {
      * 调用该方法后，当前限制线程不会被唤醒，因此他们不会注意到最新的速率；只有接下来的请求才会。
      * 需要注意的是，由于每次请求偿还了（通过等待，如果需要的话）上一次请求的开销，这意味着紧紧跟着的下一个请求不会被最新的速率影响到，在调用了setRate 之后；
      * 它会偿还上一次请求的开销，这个开销依赖于之前的速率。
-     * RateLimiter的行为在任何方式下都不会被改变，比如如果 AbstractRateLimiter 有20秒的预热期配置，在此方法被调用后它还是会进行20秒的预热。
+     * RateLimiter的行为在任何方式下都不会被改变，比如如果 RateLimiter 有20秒的预热期配置，在此方法被调用后它还是会进行20秒的预热。
      *
      * @param permitsPerSecond RateLimiter的新的稳定速率
      * @throws IllegalArgumentException 如果permitsPerSecond为负数或者为0
