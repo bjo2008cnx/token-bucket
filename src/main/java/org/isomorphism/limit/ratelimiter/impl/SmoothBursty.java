@@ -1,7 +1,7 @@
 package org.isomorphism.limit.ratelimiter.impl;
 
 /**
- * 实现了“突发” RateLimiter，其中storedPermits被转换到零节流(are translated to zero throttling)。
+ * 实现了“突发” AbstractRateLimiter，其中storedPermits被转换到零节流(are translated to zero throttling)。
  * （当RateLimiter未使用时）可以保存的许可证的最大数量由时间来定义，如：如果RateLimiter是2qps，并且这个时间被指定为10秒，我们可以节省高达2 * 10 = 20个许可证。
  */
 public class SmoothBursty extends SmoothRateLimiter {

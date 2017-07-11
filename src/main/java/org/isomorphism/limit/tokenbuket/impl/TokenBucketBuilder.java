@@ -95,7 +95,7 @@ public class TokenBucketBuilder {
     }
 
     /**
-     * 构建令牌桶。
+     * 构建令牌桶
      */
     public TokenBucket build() {
         checkNotNull(capacity, "Must specify a capacity");

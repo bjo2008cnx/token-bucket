@@ -2,12 +2,10 @@ package org.isomorphism.limit.ratelimiter.impl;
 
 import com.google.common.math.LongMath;
 
-import java.util.concurrent.TimeUnit;
-
 import static java.lang.Math.min;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public abstract class SmoothRateLimiter extends RateLimiter {
+public abstract class SmoothRateLimiter extends AbstractRateLimiter {
 
     /**
      * 实现了以下功能，其中coldInterval = coldFactor * stableInterval
@@ -33,7 +31,7 @@ public abstract class SmoothRateLimiter extends RateLimiter {
      * <p>
      * 在介绍这个特定功能的细节之前，让我们牢记基础知识：
      * <ol>
-     * <li> RateLimiter（storedPermits）的状态是该图中的垂直线。
+     * <li> AbstractRateLimiter（storedPermits）的状态是该图中的垂直线。
      * <li>当没有使用RateLimiter时，这是正确的（最大值为 maxPermits)
      * <li>当使用RateLimiter时，这会向左（下降到零）
      * <li>因为如果我们有storedPermits，我们从那些先取(since if we have storedPermits, we serve from those first)

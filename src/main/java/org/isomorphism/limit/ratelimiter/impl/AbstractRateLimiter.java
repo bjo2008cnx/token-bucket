@@ -20,12 +20,12 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * 速率限制器通常用于限制访问某些物理或逻辑资源的速率。
  * 这与{@link java.util.concurrent.Semaphore}相反，{@link java.util.concurrent.Semaphore}限制了并发访问次数而不是速率（注意并发和速率是密切相关的，
  * 参见<a href="http://en.wikipedia.org/wiki/Little%27s_law">Little's  * Law</a>).
- * {@code RateLimiter}主要由许可证发放的速率定义。 没有额外的配置，许可证将以固定的速率分配，按照许可证/每秒定义。 许可证将顺利分发，调整许可证之间的延迟，使速率得以维持。
+ * {@code AbstractRateLimiter}主要由许可证发放的速率定义。 没有额外的配置，许可证将以固定的速率分配，按照许可证/每秒定义。 许可证将顺利分发，调整许可证之间的延迟，使速率得以维持。
  * <p>
- * <p>可以配置{@code RateLimiter}进行预热，在此期间，每次发出的许可证会稳定增加，直到达到稳定速率。 <p>
+ * <p>可以配置{@code AbstractRateLimiter}进行预热，在此期间，每次发出的许可证会稳定增加，直到达到稳定速率。 <p>
  * <p>例如，假设我们有一个要执行的任务列表，但是我们不想每秒提交超过2个：
  * <pre>   {@code
- *  final RateLimiter rateLimiter = RateLimiter.create(2.0); // 每秒不超过2个
+ *  final AbstractRateLimiter rateLimiter = AbstractRateLimiter.create(2.0); // 每秒不超过2个
  *  void submitTasks(List<Runnable> tasks, Executor executor) {
  *    for (Runnable task : tasks) {
  *      rateLimiter.acquire(); // 可能会等待
@@ -35,7 +35,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * <p>
  * <p>另一个例子，假设我们产生一个数据流，我们希望以每秒5kb的速度上限。 这可以通过要求每个字节的许可证，并指定每秒5000个许可证的速率来实现：
  * <pre>   {@code
- *  final RateLimiter rateLimiter = RateLimiter.create(5000.0); // rate = 5000 permits per second
+ *  final AbstractRateLimiter rateLimiter = AbstractRateLimiter.create(5000.0); // rate = 5000 permits per second
  *  void submitPacket(byte[] packet) {
  *    rateLimiter.acquire(packet.length);
  *    networkService.send(packet);
@@ -43,12 +43,12 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * <p>
  *  有一点很重要，那就是请求的许可数从来不会影响到请求本身的限制（调用acquire(1) 和调用acquire(1000) 将得到相同的限制效果，如果存在这样的调用的话），
  *  但会影响下一次请求的限制，也就是说，如果一个高开销的任务抵达一个空闲的RateLimiter，它会被马上许可，但是下一个请求会经历额外的限制，从而来偿付高开销任务。
- *  注意：RateLimiter 并不提供公平性的保证。
+ *  注意：AbstractRateLimiter 并不提供公平性的保证。
  */
 @ThreadSafe
 @Beta
 @GwtIncompatible
-public abstract class RateLimiter {
+public abstract class AbstractRateLimiter {
     /**
      * 根据指定的稳定吞吐率创建RateLimiter，这里的吞吐率是指每秒多少许可数（通常是指QPS，每秒多少查询）
      *
@@ -58,14 +58,14 @@ public abstract class RateLimiter {
      * 返回的RateLimiter 确保了在平均情况下，每秒发布的许可数不会超过permitsPerSecond，每秒钟会持续发送请求。当传入请求速率超过permitsPerSecond，
      * 速率限制器会每秒释放一个许可(1.0 / permitsPerSecond 这里是指设定了permitsPerSecond为1.0) 。
      * 当速率限制器闲置时，允许许可数暴增到permitsPerSecond，随后的请求会被平滑地限制在稳定速率permitsPerSecond中。
-     * @param permitsPerSecond 返回的{@code RateLimiter}的速率，以每秒可用的许可证数量为单位
+     * @param permitsPerSecond 返回的{@code AbstractRateLimiter}的速率，以每秒可用的许可证数量为单位
      * @throws IllegalArgumentException 如果{@code permitPerSecond}为负数或零
      */
     // 这相当于{@code createWithCapacity(permitsPerSecond, 1, TimeUnit.SECONDS)}
-    public static RateLimiter create(double permitsPerSecond) {
+    public static AbstractRateLimiter create(double permitsPerSecond) {
     /*
-     * The default RateLimiter configuration can save the unused permits of up to one second. This
-     * is to avoid unnecessary stalls in situations like this: A RateLimiter of 1qps, and 4 threads,
+     * The default AbstractRateLimiter configuration can save the unused permits of up to one second. This
+     * is to avoid unnecessary stalls in situations like this: A AbstractRateLimiter of 1qps, and 4 threads,
      * all calling acquire() at these moments:
      *
      * T0 at 0 seconds
@@ -80,8 +80,8 @@ public abstract class RateLimiter {
     }
 
     @VisibleForTesting
-    static RateLimiter create(SleepingStopwatch stopwatch, double permitsPerSecond) {
-        RateLimiter rateLimiter = new SmoothBursty(stopwatch, 1.0 /* maxBurstSeconds */);
+    static AbstractRateLimiter create(SleepingStopwatch stopwatch, double permitsPerSecond) {
+        AbstractRateLimiter rateLimiter = new SmoothBursty(stopwatch, 1.0 /* maxBurstSeconds */);
         rateLimiter.setRate(permitsPerSecond);
         return rateLimiter;
     }
@@ -103,14 +103,14 @@ public abstract class RateLimiter {
      * @param unit             参数warmupPeriod 的时间单位
      * @throws IllegalArgumentException 如果permitsPerSecond为负数或者为0
      */
-    public static RateLimiter create(double permitsPerSecond, long warmupPeriod, TimeUnit unit) {
+    public static AbstractRateLimiter create(double permitsPerSecond, long warmupPeriod, TimeUnit unit) {
         checkArgument(warmupPeriod >= 0, "warmupPeriod must not be negative: %s", warmupPeriod);
         return create(SleepingStopwatch.createFromSystemTimer(), permitsPerSecond, warmupPeriod, unit, 3.0);
     }
 
     @VisibleForTesting
-    static RateLimiter create(SleepingStopwatch stopwatch, double permitsPerSecond, long warmupPeriod, TimeUnit unit, double coldFactor) {
-        RateLimiter rateLimiter = new SmoothWarmingUp(stopwatch, warmupPeriod, unit, coldFactor);
+    static AbstractRateLimiter create(SleepingStopwatch stopwatch, double permitsPerSecond, long warmupPeriod, TimeUnit unit, double coldFactor) {
+        AbstractRateLimiter rateLimiter = new SmoothWarmingUp(stopwatch, warmupPeriod, unit, coldFactor);
         rateLimiter.setRate(permitsPerSecond);
         return rateLimiter;
     }
@@ -137,7 +137,7 @@ public abstract class RateLimiter {
         return mutex;
     }
 
-    RateLimiter(SleepingStopwatch stopwatch) {
+    AbstractRateLimiter(SleepingStopwatch stopwatch) {
         this.stopwatch = checkNotNull(stopwatch);
     }
 
@@ -146,7 +146,7 @@ public abstract class RateLimiter {
      * 调用该方法后，当前限制线程不会被唤醒，因此他们不会注意到最新的速率；只有接下来的请求才会。
      * 需要注意的是，由于每次请求偿还了（通过等待，如果需要的话）上一次请求的开销，这意味着紧紧跟着的下一个请求不会被最新的速率影响到，在调用了setRate 之后；
      * 它会偿还上一次请求的开销，这个开销依赖于之前的速率。
-     * RateLimiter的行为在任何方式下都不会被改变，比如如果 RateLimiter 有20秒的预热期配置，在此方法被调用后它还是会进行20秒的预热。
+     * RateLimiter的行为在任何方式下都不会被改变，比如如果 AbstractRateLimiter 有20秒的预热期配置，在此方法被调用后它还是会进行20秒的预热。
      *
      * @param permitsPerSecond RateLimiter的新的稳定速率
      * @throws IllegalArgumentException 如果permitsPerSecond为负数或者为0
@@ -197,7 +197,7 @@ public abstract class RateLimiter {
     }
 
     /**
-     * Reserves the given number of permits from this {@code RateLimiter} for future use, returning
+     * Reserves the given number of permits from this {@code AbstractRateLimiter} for future use, returning
      * the number of microseconds until the reservation can be consumed.
      *
      * @return time in microseconds to wait until the resource can be acquired, never negative
@@ -303,7 +303,7 @@ public abstract class RateLimiter {
 
     @Override
     public String toString() {
-        return String.format(Locale.ROOT, "RateLimiter[stableRate=%3.1fqps]", getRate());
+        return String.format(Locale.ROOT, "AbstractRateLimiter[stableRate=%3.1fqps]", getRate());
     }
 
 

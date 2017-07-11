@@ -1,4 +1,4 @@
-package org.isomorphism.limit.ratelimiter;
+package org.isomorphism.limit.timelimiter;
 
 import com.google.common.util.concurrent.UncheckedTimeoutException;
 
