@@ -3,9 +3,35 @@ package org.isomorphism.limit.ratelimiter;
 import java.util.concurrent.TimeUnit;
 
 /**
- * RateLimiter
+ * 速率限制器以可配置的速率分配许可证。 如果需要，每个{@link #acquire（）}将阻塞，直到许可证可用，然后才能使用它。 一旦获得，许可证不需要被释放。
+ * 速率限制器通常用于限制访问某些物理或逻辑资源的速率。
+ * 这与{@link java.util.concurrent.Semaphore}相反，{@link java.util.concurrent.Semaphore}限制了并发访问次数而不是速率（注意并发和速率是密切相关的，
+ * 参见<a href="http://en.wikipedia.org/wiki/Little%27s_law">Little's  * Law</a>).
+ * {@code AbstractRateLimiter}主要由许可证发放的速率定义。 没有额外的配置，许可证将以固定的速率分配，按照许可证/每秒定义。 许可证将顺利分发，调整许可证之间的延迟，使速率得以维持。
+ * <p>
+ * <p>可以配置{@code AbstractRateLimiter}进行预热，在此期间，每次发出的许可证会稳定增加，直到达到稳定速率。 <p>
+ * <p>例如，假设我们有一个要执行的任务列表，但是我们不想每秒提交超过2个：
+ * <pre>   {@code
+ *  final AbstractRateLimiter rateLimiter = AbstractRateLimiter.create(2.0); // 每秒不超过2个
+ *  void submitTasks(List<Runnable> tasks, Executor executor) {
+ *    for (Runnable task : tasks) {
+ *      rateLimiter.acquire(); // 可能会等待
+ *      executor.execute(task);
+ *    }
+ *  }}</pre>
+ * <p>
+ * <p>另一个例子，假设我们产生一个数据流，我们希望以每秒5kb的速度上限。 这可以通过要求每个字节的许可证，并指定每秒5000个许可证的速率来实现：
+ * <pre>   {@code
+ *  final AbstractRateLimiter rateLimiter = AbstractRateLimiter.create(5000.0); // rate = 5000 permits per second
+ *  void submitPacket(byte[] packet) {
+ *    rateLimiter.acquire(packet.length);
+ *    networkService.send(packet);
+ *  }}</pre>
+ * <p>
+ *  有一点很重要，那就是请求的许可数从来不会影响到请求本身的限制（调用acquire(1) 和调用acquire(1000) 将得到相同的限制效果，如果存在这样的调用的话），
+ *  但会影响下一次请求的限制，也就是说，如果一个高开销的任务抵达一个空闲的RateLimiter，它会被马上许可，但是下一个请求会经历额外的限制，从而来偿付高开销任务。
+ *  注意：AbstractRateLimiter 并不提供公平性的保证。
  *
- * @author Michael.Wang
  * @date 2017/7/11
  */
 public interface RateLimiter {

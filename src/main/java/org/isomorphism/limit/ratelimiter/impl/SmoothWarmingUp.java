@@ -11,7 +11,7 @@ public class SmoothWarmingUp extends SmoothRateLimiter {
     private double thresholdPermits;
     private double coldFactor;
 
-    SmoothWarmingUp(SleepingStopwatch stopwatch, long warmupPeriod, TimeUnit timeUnit, double coldFactor) {
+    public SmoothWarmingUp(SleepingStopwatch stopwatch, long warmupPeriod, TimeUnit timeUnit, double coldFactor) {
         super(stopwatch);
         this.warmupPeriodMicros = timeUnit.toMicros(warmupPeriod);
         this.coldFactor = coldFactor;

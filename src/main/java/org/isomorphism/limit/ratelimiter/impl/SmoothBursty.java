@@ -10,7 +10,7 @@ public class SmoothBursty extends SmoothRateLimiter {
      */
     final double maxBurstSeconds;
 
-    SmoothBursty(SleepingStopwatch stopwatch, double maxBurstSeconds) {
+    public SmoothBursty(SleepingStopwatch stopwatch, double maxBurstSeconds) {
         super(stopwatch);
         this.maxBurstSeconds = maxBurstSeconds;
     }
