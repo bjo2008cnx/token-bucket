@@ -3,8 +3,6 @@ package org.isomorphism.limit.ratelimiter.impl;
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtIncompatible;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Stopwatch;
-import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -103,6 +101,7 @@ public abstract class RateLimiter {
      * 同样地，如果RateLimiter 在warmupPeriod时间内闲置不用，它将会逐步地返回冷却状态。也就是说，它会像它第一次被创建般经历同样的预热期。
      * 返回的RateLimiter 主要用于那些需要预热期的资源，这些资源实际上满足了请求（比如一个远程服务），而不是在稳定（最大）的速率下可以立即被访问的资源。
      * 返回的RateLimiter 在冷却状态下启动（即预热期将会紧跟着发生），并且如果被长期闲置不用，它将回到冷却状态。
+     * 应用场景：如果资源池长期不用，资源池将收缩到最小数量
      *
      * @param permitsPerSecond 返回的RateLimiter的速率，意味着每秒有多少个许可变成有效。
      * @param warmupPeriod     在这段时间内RateLimiter会增加它的速率，在抵达它的稳定速率或者最大速率之前
@@ -312,40 +311,6 @@ public abstract class RateLimiter {
         return String.format(Locale.ROOT, "RateLimiter[stableRate=%3.1fqps]", getRate());
     }
 
-    abstract static class SleepingStopwatch {
-        /**
-         * Constructor for use by subclasses.
-         */
-        protected SleepingStopwatch() {
-        }
-
-        /*
-         * We always hold the mutex when calling this. TODO(cpovirk): Is that important? Perhaps we need
-         * to guarantee that each call to reserveEarliestAvailable, etc. sees a value >= the previous?
-         * Also, is it OK that we don't hold the mutex when sleeping?
-         */
-        protected abstract long readMicros();
-
-        protected abstract void sleepMicrosUninterruptibly(long micros);
-
-        public static final SleepingStopwatch createFromSystemTimer() {
-            return new SleepingStopwatch() {
-                final Stopwatch stopwatch = Stopwatch.createStarted();
-
-                @Override
-                protected long readMicros() {
-                    return stopwatch.elapsed(MICROSECONDS);
-                }
-
-                @Override
-                protected void sleepMicrosUninterruptibly(long micros) {
-                    if (micros > 0) {
-                        Uninterruptibles.sleepUninterruptibly(micros, MICROSECONDS);
-                    }
-                }
-            };
-        }
-    }
 
     private static void checkPermits(int permits) {
         checkArgument(permits > 0, "Requested permits (%s) must be positive", permits);

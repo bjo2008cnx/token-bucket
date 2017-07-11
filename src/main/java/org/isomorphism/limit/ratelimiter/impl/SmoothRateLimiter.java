@@ -91,7 +91,7 @@ public abstract class SmoothRateLimiter extends RateLimiter {
      */
     private long nextFreeTicketMicros = 0L; // could be either in the past or future
 
-    SmoothRateLimiter(RateLimiter.SleepingStopwatch stopwatch) {
+    SmoothRateLimiter(SleepingStopwatch stopwatch) {
         super(stopwatch);
     }
 
