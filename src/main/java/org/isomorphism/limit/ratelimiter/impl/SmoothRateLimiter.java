@@ -9,9 +9,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 public abstract class SmoothRateLimiter extends RateLimiter {
 
-
     /**
-     * This implements the following function where coldInterval = coldFactor * stableInterval.
+     * 实现了以下功能，其中coldInterval = coldFactor * stableInterval
      * <p>
      * <pre>
      *          ^ throttling
@@ -32,31 +31,25 @@ public abstract class SmoothRateLimiter extends RateLimiter {
      *          0 thresholdPermits maxPermits
      * </pre>
      * <p>
-     * Before going into the details of this particular function, let's keep in mind the basics:
-     * <p>
+     * 在介绍这个特定功能的细节之前，让我们牢记基础知识：
      * <ol>
-     * <li>The state of the RateLimiter (storedPermits) is a vertical line in this figure.
-     * <li>When the RateLimiter is not used, this goes right (up to maxPermits)
-     * <li>When the RateLimiter is used, this goes left (down to zero), since if we have
-     * storedPermits, we serve from those first
-     * <li>When _unused_, we go right at a constant rate! The rate at which we move to the right is
-     * chosen as maxPermits / warmupPeriod. This ensures that the time it takes to go from 0 to
+     * <li> RateLimiter（storedPermits）的状态是该图中的垂直线。
+     * <li>当没有使用RateLimiter时，这是正确的（最大值为 maxPermits)
+     * <li>当使用RateLimiter时，这会向左（下降到零）
+     * <li>因为如果我们有storedPermits，我们从那些先取(since if we have storedPermits, we serve from those first)
+     * <li>When _unused_, we go right at a constant rate! The rate at which we move to the right is  chosen as maxPermits / warmupPeriod. This ensures that the time it takes to go from 0 to
      * maxPermits is equal to warmupPeriod.
-     * <li>When _used_, the time it takes, as explained in the introductory class note, is equal to
-     * the integral of our function, between X permits and X-K permits, assuming we want to
+     * <li>When _used_, the time it takes, as explained in the introductory class note, is equal to the integral of our function, between X permits and X-K permits, assuming we want to
      * spend K saved permits.
      * </ol>
-     * <p>
-     * <p>In summary, the time it takes to move to the left (spend K permits), is equal to the area of
-     * the function of width == K.
-     * <p>
+     *
+     * <p>In summary, the time it takes to move to the left (spend K permits), is equal to the area of  the function of width == K.
      * <p>Assuming we have saturated demand, the time to go from maxPermits to thresholdPermits is
-     * equal to warmupPeriod. And the time to go from thresholdPermits to 0 is warmupPeriod/2. (The
+     * equa to warmupPeriod. And the time to go from thresholdPermits to 0 is warmupPeriod/2. (The
      * reason that this is warmupPeriod/2 is to maintain the behavior of the original implementation
      * where coldFactor was hard coded as 3.)
-     * <p>
+     *
      * <p>It remains to calculate thresholdsPermits and maxPermits.
-     * <p>
      * <ul>
      * <li>The time to go from thresholdPermits to 0 is equal to the integral of the function
      * between 0 and thresholdPermits. This is thresholdPermits * stableIntervals. By (5) it is
@@ -75,9 +68,6 @@ public abstract class SmoothRateLimiter extends RateLimiter {
      * <p>
      * </ul>
      */
-
-
-
 
     /**
      * The currently stored permits.
