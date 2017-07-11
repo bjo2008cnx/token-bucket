@@ -92,4 +92,15 @@ public interface RateLimiter {
      */
     boolean tryAcquire(int permits, long timeout, TimeUnit unit);
 
+    /**
+     * 更新RateLimite的稳定速率，参数permitsPerSecond 由构造RateLimiter的工厂方法提供。
+     * 调用该方法后，当前限制线程不会被唤醒，因此他们不会注意到最新的速率；只有接下来的请求才会。
+     * 需要注意的是，由于每次请求偿还了（通过等待，如果需要的话）上一次请求的开销，这意味着紧紧跟着的下一个请求不会被最新的速率影响到，在调用了setRate 之后；
+     * 它会偿还上一次请求的开销，这个开销依赖于之前的速率。
+     * RateLimiter的行为在任何方式下都不会被改变，比如如果 AbstractRateLimiter 有20秒的预热期配置，在此方法被调用后它还是会进行20秒的预热。
+     *
+     * @param permitsPerSecond RateLimiter的新的稳定速率
+     * @throws IllegalArgumentException 如果permitsPerSecond为负数或者为0
+     */
+    void setRate(double permitsPerSecond);
 }

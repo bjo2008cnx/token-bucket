@@ -1,7 +1,6 @@
 package org.isomorphism.limit.ratelimiter;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.isomorphism.limit.ratelimiter.impl.AbstractRateLimiter;
 import org.isomorphism.limit.ratelimiter.impl.SleepingStopwatch;
 import org.isomorphism.limit.ratelimiter.impl.SmoothBursty;
 import org.isomorphism.limit.ratelimiter.impl.SmoothWarmingUp;
@@ -28,22 +27,20 @@ public class RateLimiters {
      * 当速率限制器闲置时，允许许可数暴增到permitsPerSecond，随后的请求会被平滑地限制在稳定速率permitsPerSecond中。
      * 相当于{@code createWithCapacity(permitsPerSecond, 1, TimeUnit.SECONDS)}
      *
-     * @param permitsPerSecond 返回的{@code AbstractRateLimiter}的速率，以每秒可用的许可证数量为单位
+     * @param permitsPerSecond 返回的{@code RateLimiter}的速率，以每秒可用的许可证数量为单位
      * @throws IllegalArgumentException 如果{@code permitPerSecond}为负数或零
      */
-    public static AbstractRateLimiter create(double permitsPerSecond) {
-        /*
-     * The default AbstractRateLimiter configuration can save the unused permits of up to one second. This
-     * is to avoid unnecessary stalls in situations like this: A AbstractRateLimiter of 1qps, and 4 threads,
-     * all calling acquire() at these moments:
+    public static RateLimiter create(double permitsPerSecond) {
+     /*
+     * 默认的RateLimiter配置,可以保存长达一秒钟的未使用的许可证。
+     * 这是为了避免在这种情况下不必要的停顿：一个1qps的RateLimiter和4个线程，在这些时刻调用acquire（）：
      *
      * T0 at 0 seconds
      * T1 at 1.05 seconds
      * T2 at 2 seconds
      * T3 at 3 seconds
      *
-     * Due to the slight delay of T1, T2 would have to sleep till 2.05 seconds, and T3 would also
-     * have to sleep till 3.05 seconds.
+     * 由于T1的轻微延迟，T2将不得不睡到2.05秒，T3也必须睡到3.05秒。
      */
         return create(SleepingStopwatch.createFromSystemTimer(), permitsPerSecond);
     }
@@ -64,21 +61,21 @@ public class RateLimiters {
      * @param unit             参数warmupPeriod 的时间单位
      * @throws IllegalArgumentException 如果permitsPerSecond为负数或者为0
      */
-    public static AbstractRateLimiter create(double permitsPerSecond, long warmupPeriod, TimeUnit unit) {
+    public static RateLimiter create(double permitsPerSecond, long warmupPeriod, TimeUnit unit) {
         checkArgument(warmupPeriod >= 0, "warmupPeriod must not be negative: %s", warmupPeriod);
         return create(SleepingStopwatch.createFromSystemTimer(), permitsPerSecond, warmupPeriod, unit, 3.0);
     }
 
     @VisibleForTesting
-    static AbstractRateLimiter create(SleepingStopwatch stopwatch, double permitsPerSecond) {
-        AbstractRateLimiter rateLimiter = new SmoothBursty(stopwatch, 1.0 /* maxBurstSeconds */);
+    static RateLimiter create(SleepingStopwatch stopwatch, double permitsPerSecond) {
+        RateLimiter rateLimiter = new SmoothBursty(stopwatch, 1.0 /* maxBurstSeconds */);
         rateLimiter.setRate(permitsPerSecond);
         return rateLimiter;
     }
 
     @VisibleForTesting
-    static AbstractRateLimiter create(SleepingStopwatch stopwatch, double permitsPerSecond, long warmupPeriod, TimeUnit unit, double coldFactor) {
-        AbstractRateLimiter rateLimiter = new SmoothWarmingUp(stopwatch, warmupPeriod, unit, coldFactor);
+    static RateLimiter create(SleepingStopwatch stopwatch, double permitsPerSecond, long warmupPeriod, TimeUnit unit, double coldFactor) {
+        RateLimiter rateLimiter = new SmoothWarmingUp(stopwatch, warmupPeriod, unit, coldFactor);
         rateLimiter.setRate(permitsPerSecond);
         return rateLimiter;
     }
