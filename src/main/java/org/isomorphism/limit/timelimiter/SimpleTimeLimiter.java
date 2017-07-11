@@ -89,7 +89,7 @@ public class SimpleTimeLimiter implements TimeLimiter {
 
     @Deprecated
     @Override
-    public <T> T callWithTimeout(Callable<T> callable, long timeoutDuration, TimeUnit timeoutUnit, boolean amInterruptible) throws Exception {
+    public <T> T callWithTimeout(Callable<T> callable, long timeoutDuration, TimeUnit timeoutUnit, boolean isInterruptible) throws Exception {
         checkNotNull(callable);
         checkNotNull(timeoutUnit);
         checkPositiveTimeout(timeoutDuration);
@@ -97,7 +97,7 @@ public class SimpleTimeLimiter implements TimeLimiter {
         Future<T> future = executor.submit(callable);
 
         try {
-            if (amInterruptible) {
+            if (isInterruptible) {
                 try {
                     return future.get(timeoutDuration, timeoutUnit);
                 } catch (InterruptedException e) {
