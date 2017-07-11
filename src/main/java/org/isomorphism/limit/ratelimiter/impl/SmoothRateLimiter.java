@@ -136,12 +136,12 @@ public abstract class SmoothRateLimiter extends AbstractRateLimiter {
     abstract long storedPermitsToWaitTime(double storedPermits, double permitsToTake);
 
     /**
-     * Returns the number of microseconds during cool down that we have to wait to get a new permit.
+     * 返回冷却期间的微秒数
      */
     abstract double coolDownIntervalMicros();
 
     /**
-     * Updates {@code storedPermits} and {@code nextFreeTicketMicros} based on the current time.
+     * 根据当前时间更新storedPermits and nextFreeTicketMicros
      */
     void resync(long nowMicros) {
         // if nextFreeTicket is in the past, resync to now
