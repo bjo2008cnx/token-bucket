@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
  * <p>可以配置{@code AbstractRateLimiter}进行预热，在此期间，每次发出的许可证会稳定增加，直到达到稳定速率。 <p>
  * <p>例如，假设我们有一个要执行的任务列表，但是我们不想每秒提交超过2个：
  * <pre>   {@code
- *  final AbstractRateLimiter rateLimiter = AbstractRateLimiter.create(2.0); // 每秒不超过2个
+ *  final RateLimiter rateLimiter = RateLimiters.create(2.0); // 每秒不超过2个
  *  void submitTasks(List<Runnable> tasks, Executor executor) {
  *    for (Runnable task : tasks) {
  *      rateLimiter.acquire(); // 可能会等待
@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * <p>另一个例子，假设我们产生一个数据流，我们希望以每秒5kb的速度上限。 这可以通过要求每个字节的许可证，并指定每秒5000个许可证的速率来实现：
  * <pre>   {@code
- *  final AbstractRateLimiter rateLimiter = AbstractRateLimiter.create(5000.0); // rate = 5000 permits per second
+ *  final RateLimiter rateLimiter = RateLimiters.create(5000.0); // rate = 5000 permits per second
  *  void submitPacket(byte[] packet) {
  *    rateLimiter.acquire(packet.length);
  *    networkService.send(packet);
